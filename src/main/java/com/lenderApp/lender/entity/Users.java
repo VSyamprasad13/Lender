@@ -14,57 +14,60 @@ import jakarta.persistence.Table;
 public class Users {
 	
 	@Id
-	@Column(unique = true)
-	private Long userID;
-	
-	private String borrowerName;
-	
-	@OneToOne
-	@JoinColumn(name="borrowerId",unique = true)
-	@JsonBackReference
-	private Borrower borrower;
-	
-	private String role;
-	
-	
-	public Users() {}
+    @Column(unique = true)
+    private Long userID;
 
-	public Users(Long userID, String borrowerName, Borrower borrower) {
-		this.userID = userID;
-		this.borrowerName = borrowerName;
-		this.borrower = borrower;
-	}
+    private String borrowerName;
 
-	public Long getUserID() {
-		return userID;
-	}
+    @OneToOne
+    @JoinColumn(name = "borrowerId", unique = true)
+    @JsonBackReference
+    private Borrower borrower;
 
-	public void setUserID(Long userID) {
-		this.userID = userID;
-	}
+    private String role;
 
-	public String getBorrowerName() {
-		return borrowerName;
-	}
+    public Users() {}
 
-	public void setBorrowerName(String borrowerName) {
-		this.borrowerName = borrowerName;
-	}
+    public Users(Long userID, String borrowerName, Borrower borrower) {
+        this.userID = userID;
+        this.borrowerName = borrowerName;
+        this.borrower = borrower;
+    }
 
-	public Borrower getBorrower() {
-		return borrower;
-	}
+    public Long getUserID() {
+        return userID;
+    }
 
-	public void setBorrower(Borrower borrower) {
-		this.borrower = borrower;
-	}
+    public void setUserID(Long userID) {
+        this.userID = userID;
+    }
 
-	public String getRole() {
-		return role;
-	}
+    public String getBorrowerName() {
+        return borrowerName;
+    }
 
-	public void setRole(String role) {
-		this.role = role;
-	}
-	
+    public void setBorrowerName(String borrowerName) {
+        this.borrowerName = borrowerName;
+    }
+
+    public Borrower getBorrower() {
+        return borrower;
+    }
+
+    public void setBorrower(Borrower borrower) {
+        this.borrower = borrower;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        // Always store with ROLE_ prefix
+        if (role != null && !role.startsWith("ROLE_")) {
+            this.role = "ROLE_" + role.toUpperCase();
+        } else {
+            this.role = role;
+        }
+    }
 }

@@ -15,45 +15,59 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtUtility {
 	
 	private final String SECRET_KEY = "secret_key";
-	
-	private Token token;
+
+    private Token token;
 
     public String generateToken(Long mobile, String role) {
-         String tokenCreated = Jwts.builder()
+        // Ensure role is stored with ROLE_ prefix
+        String prefixedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role.toUpperCase();
+
+        String tokenCreated = Jwts.builder()
                 .setSubject(String.valueOf(mobile))
-                .claim("role", role)
+                .claim("role", prefixedRole)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
                 .compact();
-         token=new Token();
-         token.setMobile(mobile);
-         token.setTokenValue(tokenCreated);
-         token.setCreatedAt(LocalDateTime.now());
-         token.setExpiresAt(token.getCreatedAt().plusHours(48));
-         return tokenCreated;
+
+        token = new Token();
+        token.setMobile(mobile);
+        token.setTokenValue(tokenCreated);
+        token.setCreatedAt(LocalDateTime.now());
+        token.setExpiresAt(token.getCreatedAt().plusHours(48));
+        return tokenCreated;
     }
 
     public String extractMobile(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY)
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
-                .getBody().getSubject();
+                .getBody()
+                .getSubject();
     }
 
     public boolean validateToken(String token, Long mobile) {
-        return extractMobile(token).equals(mobile) && !isTokenExpired(token);
+        try {
+            return extractMobile(token).equals(String.valueOf(mobile)) && !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isTokenExpired(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY)
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(token)
-                .getBody().getExpiration().before(new Date());
+                .getBody()
+                .getExpiration()
+                .before(new Date());
     }
-    
+
     public String extractRole(String token) {
-        return Jwts.parser().setSigningKey(SECRET_KEY)
-            .parseClaimsJws(token)
-            .getBody()
-            .get("role", String.class);
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }

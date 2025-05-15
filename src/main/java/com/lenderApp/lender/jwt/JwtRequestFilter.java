@@ -31,6 +31,12 @@ public class JwtRequestFilter extends OncePerRequestFilter{
 
     @Autowired
     private UsersRepository usersRepository;
+    
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/auth/");
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -49,10 +55,15 @@ public class JwtRequestFilter extends OncePerRequestFilter{
                         List<GrantedAuthority> authorities = Collections.singletonList(
                             new SimpleGrantedAuthority(user.getRole())
                         );
+                        
+//                        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
 
-                        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                            user, null, authorities
-                        );
+                        UsernamePasswordAuthenticationToken token =
+                        	    new UsernamePasswordAuthenticationToken(
+                        	        user,
+                        	        null,
+                        	        Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
+                        	    );
                         token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(token);
                     }

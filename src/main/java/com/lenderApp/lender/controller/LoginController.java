@@ -90,7 +90,7 @@ public class LoginController {
 	        token.setTokenValue(jwtToken);
 	        tokenRepository.save(token);
 
-	        return ResponseEntity.ok("Token: " + jwtToken);
+	        return ResponseEntity.ok().body(token);
 	    }
 
 	    return ResponseEntity.badRequest().body("Invalid OTP or MSISDN");
